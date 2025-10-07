@@ -7,6 +7,25 @@ Currently, two official plugins are available:
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
+
+## Get Started
+```bash
+# Clone the repo
+git clone https://github.com/TienKimNguyen/bookmark-management.git
+
+# Change directory
+cd bookmark-management
+
+# Install dependencies
+npm install
+
+# Run locally
+npm run dev
+
+# Open local browser
+Click o + Enter
+```
+
 ## React Compiler
 
 The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
