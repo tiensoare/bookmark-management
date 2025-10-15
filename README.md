@@ -22,6 +22,9 @@ npm install
 # Run locally
 npm run dev
 
+# Open action menu
+Click h + Enter
+
 # Open local browser
 Click o + Enter
 ```

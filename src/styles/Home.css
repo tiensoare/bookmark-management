@@ -1,0 +1,10 @@
+.home-container {
+  width: 100%;
+  min-height: 100vh; /* makes it fill the whole viewport vertically */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 2rem;
+}
