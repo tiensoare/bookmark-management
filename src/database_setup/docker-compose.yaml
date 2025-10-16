@@ -1,0 +1,18 @@
+# Bookmark Management System: Local Postgres via Docker
+version: "3.8"
+services:
+  db:
+    image: postgres:16
+    container_name: bms-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bms_user
+      POSTGRES_PASSWORD: bms_password
+      POSTGRES_DB: bms_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - bms_pgdata:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d:ro
+volumes:
+  bms_pgdata:
