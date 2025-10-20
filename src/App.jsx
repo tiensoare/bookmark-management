@@ -1,7 +1,8 @@
 import Layout from "./components/Layout";
 import Home from "./components/Home";
+import { useEffect, useState } from "react";
 
-import './styles/App.css';
+
 
 function App() {
   return (
