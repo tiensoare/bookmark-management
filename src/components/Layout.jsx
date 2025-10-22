@@ -1,3 +1,5 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faBookmark } from '@fortawesome/free-solid-svg-icons';
 function Layout({ children }) {
   return (
     <div>
@@ -11,7 +13,8 @@ function Layout({ children }) {
           alignItems: "center",
         }}
       >
-        <h2>Bookie</h2>
+        {/* <FontAwesomeIcon icon={byPrefixAndName.fas['bookmark']}  /> */}
+        <h2><FontAwesomeIcon icon={faBookmark} style={{marginRight: "0.3rem"}} />Bookie</h2>
         <nav>
           <a href="/" style={{ color: "white", marginLeft: "1rem", textDecoration: "none" }}>
             Home
