@@ -28,6 +28,7 @@
 
 3. **Apply migration (notes/images/sort)**
    ```bash
+   docker exec -i bms-postgres psql -U bms_user -d bms_db < database_schema.sql
    docker exec -i bms-postgres psql -U bms_user -d bms_db < ./sql/002_notes_images_and_sort.sql
    ```
 
