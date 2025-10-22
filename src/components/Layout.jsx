@@ -3,15 +3,15 @@ function Layout({ children }) {
     <div>
       <header
         style={{
-          background: "#f6c3cfff",
-          color: "black",
-          padding: "1rem",
+          background: "#630031",
+          color: "white",
+          padding: "0rem 1rem",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
         }}
       >
-        <h2>Bookmark Manager</h2>
+        <h2>Bookie</h2>
         <nav>
           <a href="/" style={{ color: "white", marginLeft: "1rem", textDecoration: "none" }}>
             Home
@@ -22,17 +22,17 @@ function Layout({ children }) {
         </nav>
       </header>
 
-      <main style={{ padding: "2rem" }}>{children}</main>
+      <main style={{ padding: "0rem" }}>{children}</main>
 
       <footer
         style={{
           background: "#ecf0f1",
           textAlign: "center",
           padding: "1rem",
-          marginTop: "2rem",
+          color: "#7f8c8d",
         }}
       >
-        <small>© {new Date().getFullYear()} Bookmark Management App</small>
+        <small>© {new Date().getFullYear()} Bookie</small>
       </footer>
     </div>
   );

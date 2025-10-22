@@ -6,5 +6,7 @@
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
-  padding: 2rem;
+  padding: 0rem;
+  background-color: #f9f9f9;
+  color: #630031;
 }
