@@ -14,7 +14,7 @@ app.use(express.json());
 // Database connection pool
 const pool = new Pool({
   host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5432,
+  port: Number(process.env.DB_PORT) || 5433,
   database: process.env.DB_NAME || 'bms_db',
   user: process.env.DB_USER || 'bms_user',
   password: process.env.DB_PASSWORD || 'bms_password',
