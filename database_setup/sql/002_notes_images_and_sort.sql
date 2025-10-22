@@ -61,6 +61,7 @@ CREATE TRIGGER trg_images_updated_at
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- 3) Update view to include sort_order and image count
+DROP VIEW IF EXISTS v_user_bookmarks;
 CREATE OR REPLACE VIEW v_user_bookmarks AS
 SELECT
     b.id AS bookmark_id,
