@@ -1,5 +1,4 @@
 # Bookmark Management System: Local Postgres via Docker
-version: "3.8"
 services:
   db:
     image: postgres:16
