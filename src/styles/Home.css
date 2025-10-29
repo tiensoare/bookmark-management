@@ -3,10 +3,18 @@
   min-height: 100vh; /* makes it fill the whole viewport vertically */
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center;
   box-sizing: border-box;
   padding: 0rem;
   background-color: #f9f9f9;
+}
+
+h1 {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #630031;
+  margin-bottom: 1rem;
+}
+p {
   color: #630031;
 }

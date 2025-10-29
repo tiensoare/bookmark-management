@@ -1,0 +1,194 @@
+.table-container {
+  width: 90%;
+  margin: 1rem auto;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* space between controls and table */
+}
+
+/* Sort controls */
+.table-sort-controls {
+  display: flex;
+  justify-content: flex-end; /* push everything to far right */
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px; /* space from table */
+  width: 100%; /* full width of container */
+  color: #630031;
+}
+
+
+
+.sort-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.sort-button:hover {
+  background-color: #0056b3;
+}
+
+/* Table styles */
+table {
+  width: 100%; /* full width inside container */
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  text-align: left;
+  padding: 8px 12px;
+}
+
+th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+  color: #630031;
+}
+
+td {
+  color: #333;
+}
+
+tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+tr:hover {
+  background-color: #f0f8ff;
+}
+
+/* Actions column */
+.actions {
+  /* display: flex; */
+  /* align-items: center;
+  justify-content: center; */
+  gap: 8px;
+}
+
+/* Icon button styles */
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 4px;
+  transition: transform 0.1s ease-in-out;
+}
+
+.icon-button:hover {
+  transform: scale(1.1);
+}
+
+.icon-button.edit {
+  color: #007bff; /* Blue */
+}
+
+.icon-button.delete {
+  color: #dc3545; /* Red */
+}
+
+
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.modal {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+}
+
+.modal h3 {
+  margin-top: 0;
+}
+
+.modal form input {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+
+.modal form .form-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  gap: 8px; /* space between label and input */
+}
+
+.modal form .form-row label {
+  width: 80px; /* fixed width for labels */
+  font-weight: bold;
+}
+
+.modal form .form-row input {
+  flex: 1; /* input takes remaining space */
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Buttons horizontal */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* Save button - dark purple */
+.modal-actions .save-button {
+  background-color: #630031; /* your color */
+  color: white;              /* text color */
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.modal-actions .save-button:hover {
+  background-color: #4b0025; /* slightly darker on hover */
+}
+
+/* Cancel button - gray */
+.modal-actions .cancel-button {
+  background-color: #6c757d; /* gray */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.modal-actions .cancel-button:hover {
+  background-color: #5a6268; /* darker gray on hover */
+}
+
+

@@ -58,8 +58,8 @@ function BookmarkList() {
 
   // Handle delete bookmark
   const handleDelete = async (bookmarkId) => {
-    if (!confirm('Delete this bookmark?')) return;
-
+    if (!confirm('Delete this bookmark?')) 
+      return;
     try {
       await bookmarkAPI.delete(bookmarkId);
       setBookmarks(bookmarks.filter((b) => b.id !== bookmarkId));
