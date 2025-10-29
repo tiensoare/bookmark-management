@@ -123,6 +123,10 @@ tr:hover {
 
 .modal h3 {
   margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: #630031;
+  font-weight: 600;
 }
 
 .modal form input {
@@ -130,7 +134,6 @@ tr:hover {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
-
 
 .modal form .form-row {
   display: flex;
@@ -191,4 +194,99 @@ tr:hover {
   background-color: #5a6268; /* darker gray on hover */
 }
 
+/* Card container for the add form */
+.add-bookmark-card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1.5rem;
+  background-color: #fafafa;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.add-bookmark-card h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: #630031;
+  font-weight: 600;
+}
+
+/* Form rows */
+.add-bookmark-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.2rem;
+  align-items: center;
+}
+
+.add-bookmark-form .form-row {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 220px;
+  min-width: 220px;
+}
+
+.add-bookmark-form label {
+  font-weight: 500;
+  font-size: 0.85rem;
+  /* margin-bottom: 0.3rem; */
+  color: #444;
+  align-self: flex-start;
+}
+
+.add-bookmark-form input[type="text"],
+.add-bookmark-form input[type="url"],
+.add-bookmark-form input[type="file"] {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+  height: 36px;
+  box-sizing: border-box;
+}
+
+.add-bookmark-form input:focus {
+  border-color: #630031;
+  outline: none;
+}
+
+/* Button styling */
+.form-actions {
+  margin-top: 1em;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5em;
+  align-items: center;
+}
+.form-actions .add-button {
+  background-color: #630031;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.2rem;
+  /* height: 36px; */
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.form-actions .cancel-button {
+  background-color: #989c9f; /* gray */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.2rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.form-actions .add-button:hover {
+  background-color: #7a0040;
+}
+
+.form-actions .cancel-button:hover {
+  background-color: #7a7d80; /* darker gray on hover */
+}
 

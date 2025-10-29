@@ -15,14 +15,14 @@ function Layout({ children }) {
       >
         {/* <FontAwesomeIcon icon={byPrefixAndName.fas['bookmark']}  /> */}
         <h2><FontAwesomeIcon icon={faBookmark} style={{marginRight: "0.3rem"}} />Bookie</h2>
-        <nav>
+        {/* <nav>
           <a href="/" style={{ color: "white", marginLeft: "1rem", textDecoration: "none" }}>
             Home
           </a>
           <a href="/add" style={{ color: "white", marginLeft: "1rem", textDecoration: "none" }}>
             Add Bookmark
           </a>
-        </nav>
+        </nav> */}
       </header>
 
       <main style={{ padding: "0rem" }}>{children}</main>
