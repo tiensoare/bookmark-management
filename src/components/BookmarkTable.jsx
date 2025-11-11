@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { bookmarkAPI, userAPI } from "../services/api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenToSquare, faTrash, faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare, faTrash, faArrowUp, faArrowDown, faAlignLeft } from "@fortawesome/free-solid-svg-icons";
 
 import "../styles/BookmarkTable.css";
 
@@ -37,7 +37,7 @@ const BookmarkTable = () => {
       return;
     try {
       await bookmarkAPI.delete(bookmarkId);
-      setBookmarks(bookmarks.filter((b) => b.id !== bookmarkId));
+      await fetchData();
     } catch (err) {
       alert('Error deleting bookmark: ' + err.message);
     }
@@ -46,10 +46,14 @@ const BookmarkTable = () => {
   // Handle create bookmark
   const handleAddBookmark = async (e) => {
     e.preventDefault();
-    if (!newBookmark.url || !userId) return;
+
+    if (!newBookmark.url || !/^https?:\/\/.+/i.test(newBookmark.url.trim())) {
+      alert("Please enter a valid URL starting with http:// or https://");
+      return;
+    }
 
     try {
-      const created = await bookmarkAPI.create({
+      await bookmarkAPI.create({
         user_id: userId,
         url: newBookmark.url.trim(),
         title: newBookmark.title.trim(),
@@ -57,7 +61,7 @@ const BookmarkTable = () => {
         image: newBookmark.image,
       });
 
-      setBookmarks([created, ...bookmarks]);
+      await fetchData();
       setNewBookmark({ title: "", url: "", notes: "", image: null });
     } catch (err) {
       alert("Error creating bookmark: " + err.message);
@@ -71,12 +75,24 @@ const BookmarkTable = () => {
 
   // Handle save bookmark after editing
   const handleSave = async (updatedBookmark) => {
+    const url = updatedBookmark.url?.trim();
+
+    if (!url) {
+      alert("URL is required.");
+      return;
+    }
+
+    if (!/^https?:\/\/.+/i.test(url)) {
+      alert("Please enter a valid URL starting with http:// or https://");
+      return;
+    }
+
     try {
-      const savedBookmark = await bookmarkAPI.update(updatedBookmark.id, updatedBookmark);
-      setBookmarks(bookmarks.map((b) => (b.id === savedBookmark.id ? savedBookmark : b)));
+      await bookmarkAPI.update(updatedBookmark.id, updatedBookmark);
+      await fetchData();
       setEditingBookmark(null);
     } catch (err) {
-      alert('Error saving bookmark: ' + err.message);
+      alert("Error saving bookmark: " + err.message);
     }
   };
 
@@ -115,7 +131,9 @@ const BookmarkTable = () => {
             </div>
 
             <div className="form-row">
-              <label htmlFor="add-url">URL</label>
+              <label htmlFor="add-url">
+                URL <span style={{ color: "red" }}>*</span>
+              </label>
               <input
                 id="add-url"
                 type="url"
@@ -153,32 +171,40 @@ const BookmarkTable = () => {
                 }}
               />
             </div>
+            <div className="form-actions">
+                <button type="submit" className="add-button">Add</button>
+                <button 
+                  type="button" 
+                  className="cancel-button"
+                  onClick={() => setNewBookmark({ title: "", url: "", notes: "" })}
+                >
+                    Cancel
+                </button>
+            </div>
           </form>
-          <div className="form-actions">
-              <button type="submit" className="add-button">Add</button>
-              <button 
-                type="button" 
-                className="cancel-button"
-                onClick={() => setNewBookmark({ title: "", url: "", notes: "" })}
-              >
-                  Cancel
-              </button>
-          </div>
         </div>
 
 
         {/* Sort controls */}
-        <div className="table-sort-controls">
-          <label htmlFor="sort-order">Sort by</label>
-          <select
-            id="sort-order"
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-          >
-            <option value="asc">Ascending</option>
-            <option value="desc">Descending</option>
-          </select>
+        <div className="table-header">
+          <div className="table-title">
+            <span>My Bookmarks</span>
+            <span className="bookmark-count">({bookmarks.length})</span>
+          </div>
+
+          <div className="table-sort-controls">
+            <label htmlFor="sort-order">Sort by</label>
+            <select
+              id="sort-order"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+            >
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+          </div>
         </div>
+
 
         {/* Table */}
         <table>
@@ -198,7 +224,17 @@ const BookmarkTable = () => {
                 <tr key={id}>
                   <td>{index + 1}</td>
                   <td>{title || <em style={{ color: "#888" }}>Untitled</em>}</td>
-                  <td>{url}</td>
+
+                  {/* Make the URL clickable */}
+                  <td>
+                    {url ? (
+                      <a href={url} target="_blank" rel="noopener noreferrer">
+                        {url}
+                      </a>
+                    ) : (
+                      <em style={{ color: "#888" }}>No URL</em>
+                    )}
+                  </td>
                   <td>{notes}</td>
                   <td className="actions">
                     <button className="icon-button edit" onClick={() => handleEdit(bookmark)}>
@@ -239,16 +275,57 @@ const BookmarkTable = () => {
               }}
             >
               <div className="form-row">
-                <label htmlFor="edit-title">Title:</label>
+                <label htmlFor="edit-title">Title</label>
                 <input id="edit-title" name="title" defaultValue={editingBookmark.title} />
               </div>
               <div className="form-row">
-                <label htmlFor="edit-url">URL:</label>
-                <input id="edit-url" name="url" defaultValue={editingBookmark.url} required />
+                <label htmlFor="edit-url">URL<span style={{ color: "red" }}>*</span></label>
+                <input id="edit-url" name="url" type="url" defaultValue={editingBookmark.url} required />
               </div>
               <div className="form-row">
-                <label htmlFor="edit-notes">Notes:</label>
+                <label htmlFor="edit-notes">Notes</label>
                 <input id="edit-notes" name="notes" defaultValue={editingBookmark.notes} />
+              </div>
+              <div className="form-row">
+                <label htmlFor="edit-image">Image:</label>
+                <input
+                  id="edit-image"
+                  name="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      setEditingBookmark({
+                        ...editingBookmark,
+                        image: file,
+                        preview: URL.createObjectURL(file),
+                      });
+                    }
+                  }}
+                />
+
+                {/* show preview if available */}
+                {editingBookmark.image && typeof editingBookmark.image === "string" && (
+                  <div className="image-preview">
+                    <img
+                      src={editingBookmark.image}
+                      alt="Current bookmark"
+                      style={{ maxWidth: "150px", maxHeight: "100px", marginTop: "8px", borderRadius: "6px" }}
+                    />
+                  </div>
+                )}
+
+                {/* show new preview if user selected a new file */}
+                {editingBookmark.preview && (
+                  <div className="image-preview">
+                    <img
+                      src={editingBookmark.preview}
+                      alt="New preview"
+                      style={{ maxWidth: "150px", maxHeight: "100px", marginTop: "8px", borderRadius: "6px" }}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="modal-actions">
