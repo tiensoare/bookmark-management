@@ -1,10 +1,8 @@
 // src/services/api.js
 // API service layer for bookmark management
-
 const API_BASE = '/api'; // Proxy handles localhost:3001
 
 // ==================== BOOKMARKS ====================
-
 export const bookmarkAPI = {
   // Get all bookmarks for a user
   getAll: async (userId, isArchived = null) => {
@@ -24,18 +22,87 @@ export const bookmarkAPI = {
     return response.json();
   },
 
-  // Create new bookmark
+  // Create new bookmark (with image support)
   create: async (bookmarkData) => {
+    // First, create the bookmark without the image
     const response = await fetch(`${API_BASE}/bookmarks`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(bookmarkData),
+      body: JSON.stringify({
+        user_id: bookmarkData.user_id,
+        url: bookmarkData.url,
+        title: bookmarkData.title,
+        notes: bookmarkData.notes,
+      }),
     });
+    
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to create bookmark');
     }
-    return response.json();
+    
+    const createdBookmark = await response.json();
+    console.log('Created bookmark:', createdBookmark);
+    
+    // If there's an image, add it to the bookmark using the imageAPI
+    if (bookmarkData.image && bookmarkData.image instanceof File) {
+      try {
+        // Convert image to base64
+        const base64Image = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(bookmarkData.image);
+        });
+
+        // Extract content type from base64 data URL
+        // Format: data:image/jpeg;base64,/9j/4AAQ...
+        const contentTypeMatch = base64Image.match(/data:([^;]+);base64,/);
+        const content_type = contentTypeMatch ? contentTypeMatch[1] : 'image/jpeg';
+
+        const payload = {
+          image_url: base64Image,
+          content_type: content_type,
+          caption: bookmarkData.title || null,
+        };
+
+        console.log('Uploading image to bookmark:', createdBookmark.id);
+        console.log('Content type:', content_type);
+        console.log('Image URL length:', base64Image.length);
+        console.log('Image URL prefix:', base64Image.substring(0, 50));
+        console.log('Payload keys:', Object.keys(payload));
+
+        // Add image to the bookmark with correct field names
+        const imageResponse = await fetch(`${API_BASE}/bookmarks/${createdBookmark.id}/images`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const responseText = await imageResponse.text();
+        console.log('Image response status:', imageResponse.status);
+        console.log('Image response body:', responseText);
+
+        if (!imageResponse.ok) {
+          let errorData;
+          try {
+            errorData = JSON.parse(responseText);
+          } catch (e) {
+            errorData = { error: responseText };
+          }
+          console.error('Image upload failed:', errorData);
+          throw new Error(errorData.error || 'Failed to upload image');
+        }
+
+        const imageResult = JSON.parse(responseText);
+        console.log('Image uploaded successfully:', imageResult);
+      } catch (imageError) {
+        console.error('Failed to upload image:', imageError);
+        throw imageError;
+      }
+    }
+    
+    return createdBookmark;
   },
 
   // Update bookmark
@@ -69,7 +136,6 @@ export const bookmarkAPI = {
 };
 
 // ==================== IMAGES ====================
-
 export const imageAPI = {
   // Get all images for a bookmark
   getAll: async (bookmarkId) => {
@@ -100,7 +166,6 @@ export const imageAPI = {
 };
 
 // ==================== USERS ====================
-
 export const userAPI = {
   // Get user by ID
   getById: async (userId) => {
@@ -118,7 +183,6 @@ export const userAPI = {
 };
 
 // ==================== HEALTH CHECK ====================
-
 export const checkHealth = async () => {
   const response = await fetch('/health');
   if (!response.ok) throw new Error('API health check failed');
