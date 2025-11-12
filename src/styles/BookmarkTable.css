@@ -289,4 +289,138 @@ tr:hover {
 .form-actions .cancel-button:hover {
   background-color: #7a7d80; /* darker gray on hover */
 }
+/* Add these styles to your BookmarkTable.css file */
 
+.file-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.file-input-label {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: center;
+  transition: background-color 0.2s;
+  max-width: 200px;
+}
+
+.file-input-label:hover {
+  background-color: #e0e0e0;
+}
+
+.file-input-label:active {
+  background-color: #d0d0d0;
+}
+
+/* Optional: Style when a file is selected */
+.file-input-label.has-file {
+  background-color: #e3f2fd;
+  border-color: #2196f3;
+  color: #1976d2;
+}
+
+/* View Image Button */
+.view-image-button {
+  padding: 6px 12px;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background-color 0.2s;
+}
+
+.view-image-button:hover {
+  background-color: #1976d2;
+}
+
+/* Image Viewer Modal */
+.image-viewer-backdrop {
+  background-color: rgba(0, 0, 0, 0.85);
+}
+
+.image-viewer-modal {
+  position: relative;
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.close-image-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  z-index: 10;
+}
+
+.close-image-button:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.viewed-image {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.image-caption {
+  margin: 0;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  text-align: center;
+  color: #333;
+  font-size: 14px;
+  max-width: 100%;
+}
+
+/* Delete Image Button */
+.delete-image-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+  margin-top: 10px;
+}
+
+.delete-image-button:hover {
+  background-color: #c82333;
+}
+
+.delete-image-button:active {
+  background-color: #bd2130;
+}
