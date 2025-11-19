@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { bookmarkAPI, userAPI, imageAPI } from "../services/api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenToSquare, faTrash, faArrowUp, faArrowDown, faAlignLeft } from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 import "../styles/BookmarkTable.css";
 
@@ -10,6 +10,7 @@ const BookmarkTable = () => {
   const [bookmarkImages, setBookmarkImages] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sortBy, setSortBy] = useState("title"); // Changed from sortOrder to sortBy
   const [sortOrder, setSortOrder] = useState("asc");
   const [editingBookmark, setEditingBookmark] = useState(null);
   const [viewingImage, setViewingImage] = useState(null);
@@ -79,22 +80,6 @@ const BookmarkTable = () => {
       });
 
       await fetchData();
-      setBookmarks([created, ...bookmarks]);
-      
-      // If an image was uploaded, fetch it and add to the images map
-      if (newBookmark.image) {
-        try {
-          const images = await imageAPI.getAll(created.id);
-          if (images && images.length > 0) {
-            setBookmarkImages(prev => ({
-              ...prev,
-              [created.id]: images[0]
-            }));
-          }
-        } catch (err) {
-          console.error('Failed to fetch uploaded image:', err);
-        }
-      }
       
       setNewBookmark({ title: "", url: "", notes: "", image: null });
       
@@ -126,10 +111,78 @@ const BookmarkTable = () => {
     }
 
     try {
-      await bookmarkAPI.update(updatedBookmark.id, updatedBookmark);
+      console.log('Starting save process for bookmark:', updatedBookmark.id);
+      
+      // Update the bookmark details first
+      await bookmarkAPI.update(updatedBookmark.id, {
+        url: updatedBookmark.url,
+        title: updatedBookmark.title,
+        notes: updatedBookmark.notes,
+      });
+      console.log('Bookmark details updated');
+
+      // Handle image replacement if a new image file was selected
+      if (updatedBookmark.newImageFile && updatedBookmark.newImageFile instanceof File) {
+        console.log('New image file detected, starting replacement process');
+        
+        // Delete old image if it exists
+        const existingImage = bookmarkImages[updatedBookmark.id];
+        if (existingImage) {
+          console.log('Deleting existing image:', existingImage.id);
+          try {
+            await imageAPI.delete(existingImage.id);
+            console.log('Old image deleted successfully');
+          } catch (err) {
+            console.error('Failed to delete old image:', err);
+            // Continue anyway to upload new image
+          }
+        }
+
+        // Upload new image
+        try {
+          console.log('Converting new image to base64...');
+          // Convert image to base64
+          const base64Image = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(updatedBookmark.newImageFile);
+          });
+
+          // Extract content type
+          const contentTypeMatch = base64Image.match(/data:([^;]+);base64,/);
+          const content_type = contentTypeMatch ? contentTypeMatch[1] : 'image/jpeg';
+
+          console.log('Uploading new image, content type:', content_type);
+          console.log('Base64 length:', base64Image.length);
+
+          // Upload new image
+          const uploadedImage = await imageAPI.create(updatedBookmark.id, {
+            image_url: base64Image,
+            content_type: content_type,
+            caption: updatedBookmark.title || null,
+          });
+          
+          console.log('New image uploaded successfully:', uploadedImage);
+          
+          // Immediately update the bookmarkImages state with the new image
+          setBookmarkImages(prev => ({
+            ...prev,
+            [updatedBookmark.id]: uploadedImage
+          }));
+        } catch (err) {
+          console.error('Failed to upload new image:', err);
+          console.error('Error details:', err.message);
+          alert('Bookmark updated, but image upload failed: ' + err.message);
+        }
+      }
+
+      console.log('Fetching updated data...');
       await fetchData();
       setEditingBookmark(null);
+      console.log('Save process complete');
     } catch (err) {
+      console.error('Error in handleSave:', err);
       alert("Error saving bookmark: " + err.message);
     }
   };
@@ -164,10 +217,34 @@ const BookmarkTable = () => {
     }
   };
 
-  // Sort bookmarks based on sortOrder
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  // Sort bookmarks based on sortBy and sortOrder
   const sortedBookmarks = [...bookmarks].sort((a, b) => {
-    const valA = (a.title?.trim() || a.url || "").toLowerCase();
-    const valB = (b.title?.trim() || b.url || "").toLowerCase();
+    let valA, valB;
+
+    switch (sortBy) {
+      case "title":
+        valA = (a.title?.trim() || a.url || "").toLowerCase();
+        valB = (b.title?.trim() || b.url || "").toLowerCase();
+        break;
+      case "date_added":
+        valA = new Date(a.created_at).getTime();
+        valB = new Date(b.created_at).getTime();
+        break;
+      case "date_modified":
+        valA = new Date(a.updated_at || a.created_at).getTime();
+        valB = new Date(b.updated_at || b.created_at).getTime();
+        break;
+      default:
+        valA = (a.title?.trim() || a.url || "").toLowerCase();
+        valB = (b.title?.trim() || b.url || "").toLowerCase();
+    }
 
     if (valA < valB) return sortOrder === "asc" ? -1 : 1;
     if (valA > valB) return sortOrder === "asc" ? 1 : -1;
@@ -267,18 +344,31 @@ const BookmarkTable = () => {
           </div>
 
           <div className="table-sort-controls">
-            <label htmlFor="sort-order">Sort by</label>
+            <label htmlFor="sort-by">Sort by</label>
+            <select
+              id="sort-by"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="title">Title</option>
+              <option value="date_added">Date Added</option>
+              <option value="date_modified">Date Modified</option>
+            </select>
+            
             <select
               id="sort-order"
               value={sortOrder}
               onChange={(e) => setSortOrder(e.target.value)}
             >
-              <option value="asc">Ascending</option>
-              <option value="desc">Descending</option>
+              <option value="asc">
+                {sortBy === 'title' ? 'A → Z' : 'Oldest First'}
+              </option>
+              <option value="desc">
+                {sortBy === 'title' ? 'Z → A' : 'Newest First'}
+              </option>
             </select>
           </div>
         </div>
-
 
         {/* Table */}
         {bookmarks.length === 0 ? (
@@ -292,12 +382,14 @@ const BookmarkTable = () => {
                 <th>Title</th>
                 <th>URL</th>
                 <th>Notes</th>
+                <th>Date Added</th>
+                <th>Date Modified</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {sortedBookmarks.map((bookmark, index) => {
-                const { id, title, url, notes } = bookmark;
+                const { id, title, url, notes, created_at, updated_at } = bookmark;
                 const image = bookmarkImages[id];
                 return (
                   <tr key={id}>
@@ -317,6 +409,12 @@ const BookmarkTable = () => {
                     <td>{title || <em style={{ color: "#888" }}>Untitled</em>}</td>
                     <td>{url}</td>
                     <td>{notes}</td>
+                    <td style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                      {formatDate(created_at)}
+                    </td>
+                    <td style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                      {formatDate(updated_at || created_at)}
+                    </td>
                     <td className="actions">
                       <button className="icon-button edit" onClick={() => handleEdit(bookmark)}>
                         <FontAwesomeIcon icon={faPenToSquare} />
@@ -369,45 +467,80 @@ const BookmarkTable = () => {
                 <input id="edit-notes" name="notes" defaultValue={editingBookmark.notes} />
               </div>
               <div className="form-row">
-                <label htmlFor="edit-image">Image:</label>
-                <input
-                  id="edit-image"
-                  name="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                      setEditingBookmark({
-                        ...editingBookmark,
-                        image: file,
-                        preview: URL.createObjectURL(file),
-                      });
-                    }
-                  }}
-                />
+                <label htmlFor="edit-image">Image</label>
+                <div className="file-input-wrapper">
+                  <input
+                    id="edit-image"
+                    name="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        setEditingBookmark({
+                          ...editingBookmark,
+                          newImageFile: file,
+                          preview: URL.createObjectURL(file),
+                        });
+                      }
+                    }}
+                    style={{ display: 'none' }}
+                  />
+                  <label 
+                    htmlFor="edit-image" 
+                    className={`file-input-label ${editingBookmark.newImageFile ? 'has-file' : ''}`}
+                    style={{ color: '#000' }}
+                  >
+                    {editingBookmark.newImageFile ? `📎 ${editingBookmark.newImageFile.name}` : '📁 Choose New Image'}
+                  </label>
+                  
+                  {/* Show existing image if available and no new preview */}
+                  {!editingBookmark.preview && bookmarkImages[editingBookmark.id] && (
+                    <div className="image-preview">
+                      <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>Current image:</p>
+                      <img
+                        src={bookmarkImages[editingBookmark.id].image_url}
+                        alt="Current bookmark"
+                        style={{ maxWidth: "150px", maxHeight: "100px", marginTop: "8px", borderRadius: "6px" }}
+                      />
+                    </div>
+                  )}
 
-                {/* show preview if available */}
-                {editingBookmark.image && typeof editingBookmark.image === "string" && (
-                  <div className="image-preview">
-                    <img
-                      src={editingBookmark.image}
-                      alt="Current bookmark"
-                      style={{ maxWidth: "150px", maxHeight: "100px", marginTop: "8px", borderRadius: "6px" }}
-                    />
-                  </div>
-                )}
-
-                {/* show new preview if user selected a new file */}
-                {editingBookmark.preview && (
-                  <div className="image-preview">
-                    <img
-                      src={editingBookmark.preview}
-                      alt="New preview"
-                      style={{ maxWidth: "150px", maxHeight: "100px", marginTop: "8px", borderRadius: "6px" }}
-                    />
-                  </div>
-                )}
+                  {/* Show new preview if user selected a new file */}
+                  {editingBookmark.preview && (
+                    <div className="image-preview">
+                      <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>New image preview:</p>
+                      <img
+                        src={editingBookmark.preview}
+                        alt="New preview"
+                        style={{ maxWidth: "150px", maxHeight: "100px", marginTop: "8px", borderRadius: "6px" }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingBookmark({
+                            ...editingBookmark,
+                            newImageFile: null,
+                            preview: null,
+                          });
+                          document.getElementById('edit-image').value = '';
+                        }}
+                        style={{ 
+                          marginTop: '8px', 
+                          padding: '4px 8px', 
+                          fontSize: '12px',
+                          background: '#dc3545',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Remove new image
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="modal-actions">
