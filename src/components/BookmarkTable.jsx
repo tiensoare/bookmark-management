@@ -257,6 +257,8 @@ const BookmarkTable = () => {
   return (
     <>
       <div className="table-container">
+        
+        {/* Add Bookmark Form */}
         <div className="add-bookmark-card">
           <div className="card-label"><h3>Add Bookmark</h3></div>
           <form className="add-bookmark-form" onSubmit={handleAddBookmark}>
@@ -301,7 +303,7 @@ const BookmarkTable = () => {
 
             <div className="form-row">
               <label htmlFor="add-image">Image</label>
-              <div className="file-input-wrapper">
+              {/* <div className="file-input-wrapper"> */}
                 <input
                   id="add-image"
                   type="file"
@@ -312,7 +314,7 @@ const BookmarkTable = () => {
                       setNewBookmark({ ...newBookmark, image: file });
                     }
                   }}
-                  style={{ display: 'none' }}
+                  style={{ display: 'none', width: '100%' }}
                 />
                 <label 
                   htmlFor="add-image" 
@@ -320,7 +322,7 @@ const BookmarkTable = () => {
                 >
                   {newBookmark.image ? `📎 ${newBookmark.image.name}` : '📁 Choose Image'}
                 </label>
-              </div>
+              {/* </div> */}
             </div>
 
             <div className="form-actions">
@@ -378,12 +380,12 @@ const BookmarkTable = () => {
             <thead>
               <tr>
                 <th>#</th>
-                <th>Image</th>
                 <th>Title</th>
                 <th>URL</th>
                 <th>Notes</th>
                 <th>Date Added</th>
                 <th>Date Modified</th>
+                <th>Image</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -394,6 +396,16 @@ const BookmarkTable = () => {
                 return (
                   <tr key={id}>
                     <td>{index + 1}</td>
+
+                    <td>{title || <em style={{ color: "#888" }}>Untitled</em>}</td>
+                    <td>{url}</td>
+                    <td>{notes}</td>
+                    <td style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                      {formatDate(created_at)}
+                    </td>
+                    <td style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                      {formatDate(updated_at || created_at)}
+                    </td>
                     <td>
                       {image ? (
                         <button 
@@ -405,15 +417,6 @@ const BookmarkTable = () => {
                       ) : (
                         <span style={{ color: '#888', fontSize: '12px' }}>No image</span>
                       )}
-                    </td>
-                    <td>{title || <em style={{ color: "#888" }}>Untitled</em>}</td>
-                    <td>{url}</td>
-                    <td>{notes}</td>
-                    <td style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                      {formatDate(created_at)}
-                    </td>
-                    <td style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                      {formatDate(updated_at || created_at)}
                     </td>
                     <td className="actions">
                       <button className="icon-button edit" onClick={() => handleEdit(bookmark)}>
