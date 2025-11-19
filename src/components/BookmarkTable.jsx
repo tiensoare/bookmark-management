@@ -492,19 +492,19 @@ const BookmarkTable = () => {
                   <label 
                     htmlFor="edit-image" 
                     className={`file-input-label ${editingBookmark.newImageFile ? 'has-file' : ''}`}
-                    style={{ color: '#000' }}
+                    style={{ color: '#000', width: '100%' }}
                   >
-                    {editingBookmark.newImageFile ? `📎 ${editingBookmark.newImageFile.name}` : '📁 Choose New Image'}
+                    {editingBookmark.newImageFile ? `📎 ${editingBookmark.newImageFile.name}` : '📁 Choose New'}
                   </label>
                   
                   {/* Show existing image if available and no new preview */}
                   {!editingBookmark.preview && bookmarkImages[editingBookmark.id] && (
                     <div className="image-preview">
-                      <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>Current image:</p>
+                      {/* <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>Current image:</p> */}
                       <img
                         src={bookmarkImages[editingBookmark.id].image_url}
                         alt="Current bookmark"
-                        style={{ maxWidth: "150px", maxHeight: "100px", marginTop: "8px", borderRadius: "6px" }}
+                        style={{ maxWidth: "150px", maxHeight: "100px", borderRadius: "6px" }}
                       />
                     </div>
                   )}
@@ -512,11 +512,11 @@ const BookmarkTable = () => {
                   {/* Show new preview if user selected a new file */}
                   {editingBookmark.preview && (
                     <div className="image-preview">
-                      <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>New image preview:</p>
+                      {/* <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>New image preview:</p> */}
                       <img
                         src={editingBookmark.preview}
                         alt="New preview"
-                        style={{ maxWidth: "150px", maxHeight: "100px", marginTop: "8px", borderRadius: "6px" }}
+                        style={{ maxWidth: "150px", maxHeight: "100px", borderRadius: "6px" }}
                       />
                       <button
                         type="button"
@@ -529,17 +529,14 @@ const BookmarkTable = () => {
                           document.getElementById('edit-image').value = '';
                         }}
                         style={{ 
-                          marginTop: '8px', 
-                          padding: '4px 8px', 
                           fontSize: '12px',
                           background: '#dc3545',
                           color: 'white',
                           border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer'
-                        }}
+                          cursor: 'pointer',
+                          marginTop: '4px',}}
                       >
-                        Remove new image
+                        Remove
                       </button>
                     </div>
                   )}
