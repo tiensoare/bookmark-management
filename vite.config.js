@@ -21,5 +21,10 @@ export default defineConfig({
         changeOrigin: true,
       }
     }
-  }
+  },
+  test: {
+    globals: true,             // allows using "test", "expect" without import
+    environment: 'jsdom',      // simulate browser for React components
+    setupFiles: './src/setupTests.js',  // optional test setup
+  },
 })
