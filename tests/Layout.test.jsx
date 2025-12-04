@@ -1,14 +1,19 @@
 import { render, screen } from '@testing-library/react'
-import { Layout } from '../components/Layout.jsx'
+import Layout from '../src/components/Layout.jsx'
+import { act } from 'react'
 
 test('Layout renders children content', () => {
-  render(
-    <Layout>
-      <p>Inner content</p>
-    </Layout>
-  )
+  act(() => {
+    render(
+      <Layout>
+        <p>Inner content</p>
+      </Layout>
+    )
+  })
 
   expect(screen.getByText('Inner content')).toBeInTheDocument()
 
-  expect(screen.getByText(/bookmark management/i)).toBeInTheDocument()
+  const elements = screen.getAllByText(/bookie/i)
+  expect(elements[0]).toBeInTheDocument() // header
+  expect(elements[1]).toBeInTheDocument() // footer
 })

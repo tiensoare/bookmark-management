@@ -3,10 +3,11 @@ import { bookmarkAPI, userAPI, imageAPI } from "../services/api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { sortBookmarks } from "../utils/sortBookmarks"; 
+import { formatDate } from "../utils/formatDate";
 
 import "../styles/BookmarkTable.css";
 
-const BookmarkTable = () => {
+const BookmarkTable = ({ initialBookmarks = null}) => {
   const [bookmarks, setBookmarks] = useState([]);
   const [bookmarkImages, setBookmarkImages] = useState({});
   const [loading, setLoading] = useState(true);
@@ -47,8 +48,14 @@ const BookmarkTable = () => {
   };
 
   useEffect(() => {
+    if (initialBookmarks) {
+      setBookmarks(initialBookmarks);
+      setLoading(false);
+      return; // Skip fetchData if initialBookmarks provided
+    }
     fetchData();
-  }, []);
+  }, [initialBookmarks]);
+
 
   // Handle delete bookmark
   const handleDelete = async (bookmarkId) => {
@@ -218,12 +225,6 @@ const BookmarkTable = () => {
     }
   };
 
-  // Format date for display
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
 
   // Sort bookmarks based on sortBy and sortOrder
   const sortedBookmarks = sortBookmarks(bookmarks, sortBy, sortOrder);

@@ -1,8 +1,11 @@
 import { render, screen } from '@testing-library/react'
-import Home from '../components/Home.jsx'  // adjust path/name if needed
+import Home from '../src/components/Home.jsx'
+import { act } from 'react'
 
-test('renders home page content', () => {
-  render(<Home />)
+test('Renders Home page content', () => {
+  act(() => {
+    render(<Home />)
+  })
 
   // Pick something that definitely appears on your Home screen:
   // e.g. "Bookmark Manager", "Welcome", etc.
