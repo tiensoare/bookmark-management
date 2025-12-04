@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { sortBookmarks } from "../utils/sortBookmarks"; 
 import { formatDate } from "../utils/formatDate";
+import { replaceBookmarkImage } from "../utils/imageUtils";
 
 import "../styles/BookmarkTable.css";
 
@@ -134,42 +135,50 @@ const BookmarkTable = ({ initialBookmarks = null}) => {
         console.log('New image file detected, starting replacement process');
         
         // Delete old image if it exists
-        const existingImage = bookmarkImages[updatedBookmark.id];
-        if (existingImage) {
-          console.log('Deleting existing image:', existingImage.id);
-          try {
-            await imageAPI.delete(existingImage.id);
-            console.log('Old image deleted successfully');
-          } catch (err) {
-            console.error('Failed to delete old image:', err);
-            // Continue anyway to upload new image
-          }
-        }
+        const existingImage = bookmarkImages[updatedBookmark.id] || null;
+        try{
+          const uploadedImage = await replaceBookmarkImage(
+            updatedBookmark.id, 
+            updatedBookmark.newImageFile, 
+            existingImage,
+            imageAPI
+          );
+        
+        // if (existingImage) {
+        //   console.log('Deleting existing image:', existingImage.id);
+        //   try {
+        //     await imageAPI.delete(existingImage.id);
+        //     console.log('Old image deleted successfully');
+        //   } catch (err) {
+        //     console.error('Failed to delete old image:', err);
+        //     // Continue anyway to upload new image
+        //   }
+        // }
 
         // Upload new image
-        try {
-          console.log('Converting new image to base64...');
-          // Convert image to base64
-          const base64Image = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(updatedBookmark.newImageFile);
-          });
+        // try {
+        //   console.log('Converting new image to base64...');
+        //   // Convert image to base64
+        //   const base64Image = await new Promise((resolve, reject) => {
+        //     const reader = new FileReader();
+        //     reader.onload = () => resolve(reader.result);
+        //     reader.onerror = reject;
+        //     reader.readAsDataURL(updatedBookmark.newImageFile);
+        //   });
 
           // Extract content type
-          const contentTypeMatch = base64Image.match(/data:([^;]+);base64,/);
-          const content_type = contentTypeMatch ? contentTypeMatch[1] : 'image/jpeg';
+          // const contentTypeMatch = base64Image.match(/data:([^;]+);base64,/);
+          // const content_type = contentTypeMatch ? contentTypeMatch[1] : 'image/jpeg';
 
-          console.log('Uploading new image, content type:', content_type);
-          console.log('Base64 length:', base64Image.length);
+          // console.log('Uploading new image, content type:', content_type);
+          // console.log('Base64 length:', base64Image.length);
 
           // Upload new image
-          const uploadedImage = await imageAPI.create(updatedBookmark.id, {
-            image_url: base64Image,
-            content_type: content_type,
-            caption: updatedBookmark.title || null,
-          });
+          // const uploadedImage = await imageAPI.create(updatedBookmark.id, {
+          //   image_url: base64Image,
+          //   content_type: content_type,
+          //   caption: updatedBookmark.title || null,
+          // });
           
           console.log('New image uploaded successfully:', uploadedImage);
           
