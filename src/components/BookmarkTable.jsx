@@ -5,6 +5,8 @@ import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { sortBookmarks } from "../utils/sortBookmarks"; 
 import { formatDate } from "../utils/formatDate";
 import { replaceBookmarkImage } from "../utils/imageUtils";
+import { fetchBookmarksData } from "../services/bookmarkService";
+import { addBookmark, saveBookmark, cancelAddBookmark } from "../services/bookmarkHandlers";
 
 import "../styles/BookmarkTable.css";
 
@@ -20,41 +22,13 @@ const BookmarkTable = ({ initialBookmarks = null}) => {
   const [newBookmark, setNewBookmark] = useState({ title: "", url: "", notes: "", image: null });
   const [userId, setUserId] = useState(null);
 
-  const fetchData = async () => {
-    try {
-      const user = await userAPI.getByEmail("demo@bookmarks.local");
-      setUserId(user.id);
-      const bookmarksData = await bookmarkAPI.getAll(user.id, false);
-      setBookmarks(bookmarksData);
-      
-      // Fetch images for each bookmark
-      const imagesMap = {};
-      for (const bookmark of bookmarksData) {
-        try {
-          const images = await imageAPI.getAll(bookmark.id);
-          if (images && images.length > 0) {
-            imagesMap[bookmark.id] = images[0]; // Store first image
-          }
-        } catch (err) {
-          console.error(`Failed to fetch images for bookmark ${bookmark.id}:`, err);
-        }
-      }
-      setBookmarkImages(imagesMap);
-      
-      setLoading(false);
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     if (initialBookmarks) {
       setBookmarks(initialBookmarks);
       setLoading(false);
       return; // Skip fetchData if initialBookmarks provided
     }
-    fetchData();
+    fetchBookmarksData(setBookmarks, setBookmarkImages, setUserId, setLoading, setError);
   }, [initialBookmarks]);
 
 
@@ -64,37 +38,17 @@ const BookmarkTable = ({ initialBookmarks = null}) => {
       return;
     try {
       await bookmarkAPI.delete(bookmarkId);
-      await fetchData();
+      await fetchBookmarksData(setBookmarks, setBookmarkImages, setUserId, setLoading, setError);
     } catch (err) {
       alert('Error deleting bookmark: ' + err.message);
     }
   };
 
-  // Handle create bookmark
+  // Handle add bookmark
   const handleAddBookmark = async (e) => {
     e.preventDefault();
-
-    if (!newBookmark.url || !/^https?:\/\/.+/i.test(newBookmark.url.trim())) {
-      alert("Please enter a valid URL starting with http:// or https://");
-      return;
-    }
-
     try {
-      await bookmarkAPI.create({
-        user_id: userId,
-        url: newBookmark.url.trim(),
-        title: newBookmark.title.trim(),
-        notes: newBookmark.notes.trim(),
-        image: newBookmark.image,
-      });
-
-      await fetchData();
-      
-      setNewBookmark({ title: "", url: "", notes: "", image: null });
-      
-      // Reset file input
-      const fileInput = document.getElementById('add-image');
-      if (fileInput) fileInput.value = '';
+      await addBookmark(newBookmark, userId, setNewBookmark, () => fetchBookmarksData(setBookmarks, setBookmarkImages, setUserId, setLoading, setError));
     } catch (err) {
       alert("Error creating bookmark: " + err.message);
     }
@@ -107,108 +61,28 @@ const BookmarkTable = ({ initialBookmarks = null}) => {
 
   // Handle save bookmark after editing
   const handleSave = async (updatedBookmark) => {
-    const url = updatedBookmark.url?.trim();
-
-    if (!url) {
-      alert("URL is required.");
-      return;
-    }
-
-    if (!/^https?:\/\/.+/i.test(url)) {
-      alert("Please enter a valid URL starting with http:// or https://");
-      return;
-    }
-
-    try {
-      console.log('Starting save process for bookmark:', updatedBookmark.id);
-      
-      // Update the bookmark details first
-      await bookmarkAPI.update(updatedBookmark.id, {
-        url: updatedBookmark.url,
-        title: updatedBookmark.title,
-        notes: updatedBookmark.notes,
-      });
-      console.log('Bookmark details updated');
-
-      // Handle image replacement if a new image file was selected
-      if (updatedBookmark.newImageFile && updatedBookmark.newImageFile instanceof File) {
-        console.log('New image file detected, starting replacement process');
-        
-        // Delete old image if it exists
-        const existingImage = bookmarkImages[updatedBookmark.id] || null;
-        try{
-          const uploadedImage = await replaceBookmarkImage(
-            updatedBookmark.id, 
-            updatedBookmark.newImageFile, 
-            existingImage,
-            imageAPI
-          );
-        
-        // if (existingImage) {
-        //   console.log('Deleting existing image:', existingImage.id);
-        //   try {
-        //     await imageAPI.delete(existingImage.id);
-        //     console.log('Old image deleted successfully');
-        //   } catch (err) {
-        //     console.error('Failed to delete old image:', err);
-        //     // Continue anyway to upload new image
-        //   }
-        // }
-
-        // Upload new image
-        // try {
-        //   console.log('Converting new image to base64...');
-        //   // Convert image to base64
-        //   const base64Image = await new Promise((resolve, reject) => {
-        //     const reader = new FileReader();
-        //     reader.onload = () => resolve(reader.result);
-        //     reader.onerror = reject;
-        //     reader.readAsDataURL(updatedBookmark.newImageFile);
-        //   });
-
-          // Extract content type
-          // const contentTypeMatch = base64Image.match(/data:([^;]+);base64,/);
-          // const content_type = contentTypeMatch ? contentTypeMatch[1] : 'image/jpeg';
-
-          // console.log('Uploading new image, content type:', content_type);
-          // console.log('Base64 length:', base64Image.length);
-
-          // Upload new image
-          // const uploadedImage = await imageAPI.create(updatedBookmark.id, {
-          //   image_url: base64Image,
-          //   content_type: content_type,
-          //   caption: updatedBookmark.title || null,
-          // });
-          
-          console.log('New image uploaded successfully:', uploadedImage);
-          
-          // Immediately update the bookmarkImages state with the new image
-          setBookmarkImages(prev => ({
-            ...prev,
-            [updatedBookmark.id]: uploadedImage
-          }));
-        } catch (err) {
-          console.error('Failed to upload new image:', err);
-          console.error('Error details:', err.message);
-          alert('Bookmark updated, but image upload failed: ' + err.message);
-        }
-      }
-
-      console.log('Fetching updated data...');
-      await fetchData();
+      try {
+      await saveBookmark(
+        updatedBookmark, 
+        bookmarkImages, 
+        setBookmarkImages, 
+        () => fetchBookmarksData(
+          setBookmarks, 
+          setBookmarkImages, 
+          setUserId, 
+          setLoading, 
+          setError)
+      );
       setEditingBookmark(null);
-      console.log('Save process complete');
     } catch (err) {
-      console.error('Error in handleSave:', err);
+      console.error("Error saving bookmark:", err);
       alert("Error saving bookmark: " + err.message);
     }
   };
 
   // Handle cancel add
   const handleCancelAdd = () => {
-    setNewBookmark({ title: "", url: "", notes: "", image: null });
-    const fileInput = document.getElementById('add-image');
-    if (fileInput) fileInput.value = '';
+    cancelAddBookmark(setNewBookmark);
   };
 
   // Handle delete image
@@ -546,6 +420,7 @@ const BookmarkTable = ({ initialBookmarks = null}) => {
       )}
 
       {/* Image Viewer Modal */}
+      
       {viewingImage && (
         <div 
           className="modal-backdrop image-viewer-backdrop"
@@ -580,6 +455,7 @@ const BookmarkTable = ({ initialBookmarks = null}) => {
           </div>
         </div>
       )}
+
     </>
   );
 };
