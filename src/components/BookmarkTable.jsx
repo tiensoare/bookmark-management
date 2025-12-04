@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { bookmarkAPI, userAPI, imageAPI } from "../services/api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { sortBookmarks } from "../utils/sortBookmarks"; 
 
 import "../styles/BookmarkTable.css";
 
@@ -225,31 +226,7 @@ const BookmarkTable = () => {
   };
 
   // Sort bookmarks based on sortBy and sortOrder
-  const sortedBookmarks = [...bookmarks].sort((a, b) => {
-    let valA, valB;
-
-    switch (sortBy) {
-      case "title":
-        valA = (a.title?.trim() || a.url || "").toLowerCase();
-        valB = (b.title?.trim() || b.url || "").toLowerCase();
-        break;
-      case "date_added":
-        valA = new Date(a.created_at).getTime();
-        valB = new Date(b.created_at).getTime();
-        break;
-      case "date_modified":
-        valA = new Date(a.updated_at || a.created_at).getTime();
-        valB = new Date(b.updated_at || b.created_at).getTime();
-        break;
-      default:
-        valA = (a.title?.trim() || a.url || "").toLowerCase();
-        valB = (b.title?.trim() || b.url || "").toLowerCase();
-    }
-
-    if (valA < valB) return sortOrder === "asc" ? -1 : 1;
-    if (valA > valB) return sortOrder === "asc" ? 1 : -1;
-    return 0;
-  });
+  const sortedBookmarks = sortBookmarks(bookmarks, sortBy, sortOrder);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -581,9 +558,9 @@ const BookmarkTable = () => {
               alt={viewingImage.caption || 'Bookmark image'} 
               className="viewed-image"
             />
-            {viewingImage.caption && (
+            {/* {viewingImage.caption && (
               <p className="image-caption">{viewingImage.caption}</p>
-            )}
+            )} */}
             <button 
               className="delete-image-button"
               onClick={() => handleDeleteImage(viewingImage.id, viewingImage.bookmark_id)}

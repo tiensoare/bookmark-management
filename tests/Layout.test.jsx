@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import Layout from '../components/Layout.jsx' // adjust name
+import { Layout } from '../components/Layout.jsx'
 
 test('Layout renders children content', () => {
   render(
