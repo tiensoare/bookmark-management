@@ -79,3 +79,18 @@ export const cancelAddBookmark = (resetNewBookmark) => {
   const fileInput = document.getElementById('add-image');
   if (fileInput) fileInput.value = '';
 };
+
+/**
+ * Delete a bookmark
+ * @param {number} bookmarkId
+ * @param {function} fetchData - function to refresh bookmarks after deletion
+ */
+export const deleteBookmark = async (bookmarkId, fetchData) => {
+  if (!confirm("Delete this bookmark?")) return;
+  try {
+    await bookmarkAPI.delete(bookmarkId);
+    await fetchData();
+  } catch (err) {
+    alert("Error deleting bookmark: " + err.message);
+  }
+};
