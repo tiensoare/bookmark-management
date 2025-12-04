@@ -46,3 +46,29 @@ export const replaceBookmarkImage = async (
 
   return uploadedImage;
 };
+
+
+/**
+ * Delete a bookmark image
+ * @param {number} imageId
+ * @param {number} bookmarkId
+ * @param {function} setBookmarkImages - state setter to remove image from state
+ * @param {function} setViewingImage - state setter to close image modal
+ */
+export const deleteBookmarkImage = async (imageId, bookmarkId, setBookmarkImages, setViewingImage) => {
+  if (!confirm("Delete this image?")) return;
+  try {
+    await imageAPI.delete(imageId);
+
+    setBookmarkImages(prev => {
+      const updated = { ...prev };
+      delete updated[bookmarkId];
+      return updated;
+    });
+
+    setViewingImage(null);
+    alert("Image deleted successfully");
+  } catch (err) {
+    alert("Error deleting image: " + err.message);
+  }
+};

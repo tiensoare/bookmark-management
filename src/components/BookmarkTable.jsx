@@ -4,9 +4,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { sortBookmarks } from "../utils/sortBookmarks"; 
 import { formatDate } from "../utils/formatDate";
-import { replaceBookmarkImage } from "../utils/imageUtils";
 import { fetchBookmarksData } from "../services/bookmarkService";
-import { addBookmark, saveBookmark, cancelAddBookmark } from "../services/bookmarkHandlers";
+import { addBookmark, saveBookmark, cancelAddBookmark, deleteBookmark } from "../services/bookmarkHandlers";
+import { deleteBookmarkImage } from "../utils/imageUtils";
 
 import "../styles/BookmarkTable.css";
 
@@ -34,14 +34,7 @@ const BookmarkTable = ({ initialBookmarks = null}) => {
 
   // Handle delete bookmark
   const handleDelete = async (bookmarkId) => {
-    if (!confirm('Delete this bookmark?')) 
-      return;
-    try {
-      await bookmarkAPI.delete(bookmarkId);
-      await fetchBookmarksData(setBookmarks, setBookmarkImages, setUserId, setLoading, setError);
-    } catch (err) {
-      alert('Error deleting bookmark: ' + err.message);
-    }
+    await deleteBookmark(bookmarkId, () => fetchBookmarksData(setBookmarks, setBookmarkImages, setUserId, setLoading, setError));
   };
 
   // Handle add bookmark
@@ -87,25 +80,7 @@ const BookmarkTable = ({ initialBookmarks = null}) => {
 
   // Handle delete image
   const handleDeleteImage = async (imageId, bookmarkId) => {
-    if (!confirm('Delete this image?')) return;
-    
-    try {
-      await imageAPI.delete(imageId);
-      
-      // Remove image from state
-      setBookmarkImages(prev => {
-        const updated = { ...prev };
-        delete updated[bookmarkId];
-        return updated;
-      });
-      
-      // Close the modal
-      setViewingImage(null);
-      
-      alert('Image deleted successfully');
-    } catch (err) {
-      alert('Error deleting image: ' + err.message);
-    }
+    await deleteBookmarkImage(imageId, bookmarkId, setBookmarkImages, setViewingImage);
   };
 
 
