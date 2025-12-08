@@ -1,3 +1,12 @@
+# For Users
+
+Please follow [this document](https://docs.google.com/document/d/135Egs4WjRKiZihFXNJ0HlKyWox36wa2Re_iRNTQqGng/edit?usp=sharing) to understand our platform and how to use it.
+
+# For Developers
+
+Please follow [this document](https://docs.google.com/document/d/1w1ZTlnVsygdjag2ze-eAuDLnC-tS1PXq8V4oL2jAcQ0/edit?usp=sharing) to get started with the project.
+
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
