@@ -28,6 +28,11 @@ cd bookmark-management
 # Install dependencies
 npm install
 
+# Run the database container on Docker
+
+# Run the backend server
+node server/server.js
+
 # Run locally
 npm run dev
 
