@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
 // Database connection pool
-const { Pool } = require('pg');
+
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
