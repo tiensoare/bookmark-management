@@ -8,7 +8,13 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://bms-frontend.onrender.com', // Your actual frontend URL
+    'http://localhost:5173' // For local development
+  ],
+  credentials: true
+}));
 app.use(express.json({ limit: '10mb' }));
 
 // Database connection pool
