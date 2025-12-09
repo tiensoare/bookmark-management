@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(cors({
   origin: [
-    'https://bms-frontend.onrender.com', // Your actual frontend URL
+    'https://bms-frontend-7j8o.onrender.com', // Your actual frontend URL
     'http://localhost:5173' // For local development
   ],
   credentials: true
