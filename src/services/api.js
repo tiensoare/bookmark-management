@@ -1,6 +1,6 @@
 // src/services/api.js
 // API service layer for bookmark management
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001'; // Proxy handles localhost:3001
+const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3001') + '/api';
 
 // ==================== BOOKMARKS ====================
 export const bookmarkAPI = {
