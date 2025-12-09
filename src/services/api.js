@@ -1,6 +1,6 @@
 // src/services/api.js
 // API service layer for bookmark management
-const API_BASE = '/api'; // Proxy handles localhost:3001
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001'; // Proxy handles localhost:3001
 
 // ==================== BOOKMARKS ====================
 export const bookmarkAPI = {
@@ -182,9 +182,8 @@ export const userAPI = {
   },
 };
 
-// ==================== HEALTH CHECK ====================
 export const checkHealth = async () => {
-  const response = await fetch('/health');
+  const response = await fetch(`${API_BASE}/health`);
   if (!response.ok) throw new Error('API health check failed');
   return response.json();
 };
